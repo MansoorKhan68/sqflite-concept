@@ -1,5 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:ui';
 
@@ -47,7 +48,6 @@ class DBHelper {
     //   await openDb();
     // }
   }
-   
 
 // two packages are use
 // path_provider is used to get the derictory path
@@ -72,26 +72,44 @@ class DBHelper {
   }
 
 // all queries here
-/// INSERTION
+  /// INSERTION
 
-Future<bool> addNote({required String myTitle, required String myDesc}) async {
-  var db = await getDb();
-  int rowsEffected = await db.insert(TABLE_NOTE, {
-    COLUMN_NOTE_TITLE : myTitle,
-    COLUMN_NOTE_DESC : myDesc
-  });
-  return rowsEffected>0;
-}
+  Future<bool> addNote(
+      {required String myTitle, required String myDesc}) async {
+    var db = await getDb();
+    int rowsEffected = await db.insert(
+        TABLE_NOTE, {COLUMN_NOTE_TITLE: myTitle, COLUMN_NOTE_DESC: myDesc});
+    return rowsEffected > 0;
+  }
 
 // READING ALL DATA
-Future<List<Map<String , dynamic>>> getAllNotes() async {
-  var db = await getDb();
-  // the  data in table is stored in List,
-  // while the in a row data is stored in MAP
-  // selet * from note
- List<Map<String, dynamic>> myData = await db.query(TABLE_NOTE);
+  Future<List<Map<String, dynamic>>> getAllNotes() async {
+    var db = await getDb();
+    // the  data in table is stored in List,
+    // while the in a row data is stored in MAP
+    // selet * from note
+    List<Map<String, dynamic>> myData = await db.query(TABLE_NOTE);
 
- return myData;
+    return myData;
+  }
+// UPDATE ALL NOTES FUNCTION
+
+  Future<bool> updateNotes(
+      {required String title, required String desc, required int sNo}) async {
+    var db = await getDb();
+   int rowsEffected = await db.update(TABLE_NOTE, {COLUMN_NOTE_TITLE: title, COLUMN_NOTE_DESC: desc}, where: "$COLUMN_NOTE_SNO = $sNo");
+   return rowsEffected >0;
+  }
+  
+  // DELETE NOTE
+Future<bool> deleteNotes({required int sNo}) async {
+  var db = await getDb();
+  int rowsEffected = await db.delete(
+    TABLE_NOTE,
+    where: "$COLUMN_NOTE_SNO = ?", // Use the correct column name
+    whereArgs: [sNo],             // Pass the integer directly, no need for string interpolation
+  );
+  return rowsEffected > 0;
 }
 
 }
